@@ -19,9 +19,11 @@ TRB.keyControlDown = function(key) {
 			TRB.moveDown();
 			break;
 		case 189:
+		case 173:
 			TRB.zoomOut();
 			break;
 		case 187:
+		case 61:
 			TRB.zoomIn();
 			break;
 	}
