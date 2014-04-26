@@ -11,9 +11,10 @@ TRB.initDefaultValues = function() {
 	TRB.mouseDownPos = {x:-1,y:-1};
 	TRB.mouseState = "up";
 
-
 	TRB.mouseMoved = false;
 	TRB.particles = {};
+
+	TRB.boids = [];
 
 	TRB.gameState = {};
 
@@ -49,7 +50,10 @@ TRB.gameLoop = function(time) {
 
 	TRB.frameRenderTime = time - TRB.lastFrameTime;
 	
-	TRB.updateModel(TRB.frameRenderTime/1000);
+	var m = 5;
+	for(var i = 0; i < m; i++) {
+		TRB.updateModel(TRB.frameRenderTime/1000/m);
+	}
 
 	TRB.drawClear();
 	TRB.drawGame();
@@ -61,6 +65,8 @@ TRB.startNewGame = function() {
 	TRB.initNewGameState();
 	TRB.saveGameState();
 };
+
+TRB.resetGame = TRB.startNewGame;
 
 TRB.copyBox = function(box) {
 	return {
@@ -86,11 +92,48 @@ TRB.fitGameBox = function(box,w,h) {
 	return box;
 };
 
+TRB.moveLeft = function() {
+	TRB.gameBox.x -= 0.05*TRB.gameBox.w;
+};
+
+TRB.moveRight = function() {
+	TRB.gameBox.x += 0.05*TRB.gameBox.w;
+};
+
+TRB.moveUp = function() {
+	TRB.gameBox.y -= 0.05*TRB.gameBox.h;
+};
+
+TRB.moveDown = function() {
+	TRB.gameBox.y += 0.05*TRB.gameBox.h;
+};
+
+TRB.scaleGameBox = function(scaleX, scaleY) {
+	TRB.gameBox.x += (1-scaleX)/2*TRB.gameBox.w;
+	TRB.gameBox.y += (1-scaleY)/2*TRB.gameBox.h;
+	
+	TRB.gameBox.w *= scaleX;
+	TRB.gameBox.h *= scaleY;
+};
+
+TRB.zoomOut = function() {
+	TRB.scaleGameBox(1.1,1.1);
+};
+
+TRB.zoomIn = function() {
+	TRB.scaleGameBox(1/1.1,1/1.1);
+};
+
 TRB.mousemove = function(x,y){
 	var w = TRB.canvas.width;
 	var h = TRB.canvas.height;
 
 	TRB.mousePos = {'x':x,'y':y};
+
+	if(TRB.mouseState == "down") {
+		TRB.gameBox.x = TRB.gameBox0.x - (x-TRB.mouseDownPos.x)*TRB.gameBox0.w;
+		TRB.gameBox.y = TRB.gameBox0.y - (y-TRB.mouseDownPos.y)*TRB.gameBox0.w;
+	}
 };
 
 TRB.mousedown = function(x,y) {
@@ -98,6 +141,8 @@ TRB.mousedown = function(x,y) {
 	TRB.mouseDownPos = {'x':x,'y':y};
 	TRB.mouseState = "down";
 	TRB.mouseMoved = false;
+
+	TRB.gameBox0 = TRB.copyBox(TRB.gameBox);
 };
 
 TRB.mouseup = function(x,y) {
@@ -170,18 +215,18 @@ TRB.initEvents = function(){
 };
 
 TRB.loadGameState = function(){
-	if (!supports_html5_storage()) { return false; }
+	// if (!supports_html5_storage()) { return false; }
 	
-	var gameData = localStorage["TRB.gameData"];
-	if(typeof gameData === "string") {
-		TRB.gameData = JSON.parse(gameData);
-	}
+	// var gameData = localStorage["TRB.gameData"];
+	// if(typeof gameData === "string") {
+	// 	TRB.gameData = JSON.parse(gameData);
+	// }
 };
 
 TRB.saveGameState = function() {
-	if (!supports_html5_storage()) { return false; }
+	// if (!supports_html5_storage()) { return false; }
 
-	localStorage["TRB.gameData"] = JSON.stringify(TRB.gameData);
+	// localStorage["TRB.gameData"] = JSON.stringify(TRB.gameData);
 };
 
 // *** LocalStorage Check ***
